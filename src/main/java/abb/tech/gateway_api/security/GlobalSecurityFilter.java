@@ -70,7 +70,7 @@ public class GlobalSecurityFilter implements GlobalFilter {
         }
 
         String username = claims.getSubject();
-        List<String> auths = claims.get("auth", List.class);
+        List<String> auths = claims.get("authorities", List.class);
 
         if (auths == null) {
             return unauthorized(exchange, "Missing authorities");

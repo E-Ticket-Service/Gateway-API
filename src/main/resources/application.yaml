@@ -3,31 +3,33 @@ spring:
     banner-mode: off
   cloud:
     gateway:
-      routes:
-        - id: auth-ms
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/auth/**
+      server:
+        webflux:
+          routes:
+          - id: auth-ms
+            uri: http://localhost:8081
+            predicates:
+              - Path=/api/auth/**
 
-        - id: ticket-ms
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/ticket/**
+          - id: ticket-ms
+            uri: http://localhost:8082
+            predicates:
+              - Path=/api/ticket/**
 
-        - id: payment-ms
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/payment/**
+          - id: payment-ms
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/payment/**
 
-        - id: notification-ms
-          uri: http://localhost:8084
-          predicates:
-            - Path=/api/notification/**
+          - id: notification-ms
+            uri: http://localhost:8084
+            predicates:
+              - Path=/api/notification/**
 
-        - id: file-ms
-          uri: http://localhost:8085
-          predicates:
-            - Path=/api/file/**
+          - id: file-ms
+            uri: http://localhost:8085
+            predicates:
+              - Path=/api/file/**
 
 gateway:
   open-endpoints:
@@ -35,4 +37,6 @@ gateway:
     - /api/auth/login
 
 jwt:
-  secret: "${JWT_SECRET}"
+  secret: "CHANGE_TO_32+_CHAR_RANDOM_SECRET"
+  access-exp: 900000    # 15 minutes
+  refresh-exp: 604800000 # 7 days
