@@ -8,7 +8,7 @@ import abb.tech.gateway_api.security.GatewaySecurityProperties;
 @SpringBootApplication
 public class GatewayApiApplication {
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		SpringApplication.run(GatewayApiApplication.class, args);
 	}
 
