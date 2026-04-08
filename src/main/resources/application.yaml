@@ -1,6 +1,10 @@
 spring:
   main:
     banner-mode: off
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   cloud:
     gateway:
       server:
@@ -10,26 +14,56 @@ spring:
             uri: http://localhost:8081
             predicates:
               - Path=/api/auth/**
+            filters:
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 5
+                  redis-rate-limiter.burstCapacity: 10
+                  key-resolver: "#{@userKeyResolver}"
 
           - id: ticket-ms
             uri: http://localhost:8082
             predicates:
               - Path=/api/ticket/**
+            filters:
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 10
+                  redis-rate-limiter.burstCapacity: 20
+                  key-resolver: "#{@userKeyResolver}"
 
           - id: payment-ms
             uri: http://localhost:8083
             predicates:
               - Path=/api/payment/**
+            filters:
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 5
+                  redis-rate-limiter.burstCapacity: 10
+                  key-resolver: "#{@userKeyResolver}"
 
           - id: notification-ms
             uri: http://localhost:8084
             predicates:
               - Path=/api/notification/**
+            filters:
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 5
+                  redis-rate-limiter.burstCapacity: 10
+                  key-resolver: "#{@userKeyResolver}"
 
           - id: file-ms
             uri: http://localhost:8085
             predicates:
-              - Path=/api/file/**
+              - Path=/api/files/**
+            filters:
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 5
+                  redis-rate-limiter.burstCapacity: 10
+                  key-resolver: "#{@userKeyResolver}"
 
 gateway:
   open-endpoints:
@@ -40,3 +74,6 @@ jwt:
   secret: "CHANGE_TO_32+_CHAR_RANDOM_SECRET"
   access-exp: 900000    # 15 minutes
   refresh-exp: 604800000 # 7 days
+
+server:
+  port: 8083
