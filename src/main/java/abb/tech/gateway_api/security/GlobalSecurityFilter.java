@@ -28,8 +28,10 @@ public class GlobalSecurityFilter implements GlobalFilter {
     private final GatewaySecurityProperties gatewaySecurityProperties;
 
     public static final String BEARER = "Bearer ";
+    public static final String X_USER_ID = "X-USER-ID";
     public static final String X_USER_NAME = "X-USER-NAME";
     public static final String X_USER_AUTHORITIES = "X-USER-AUTHORITIES";
+    public static final String X_TOKEN_TYPE = "X-TOKEN-TYPE";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -64,12 +66,14 @@ public class GlobalSecurityFilter implements GlobalFilter {
             log.warn("JWT parse failed: {}", e.getMessage());
             return unauthorized(exchange, "Invalid token");
         }
+        String tokenType = claims.get("type").toString();
 
-        if (!"access".equals(claims.get("type"))) {
+        if (!"access".equals(tokenType)) {
             return unauthorized(exchange, "Invalid token type");
         }
 
         String username = claims.getSubject();
+        Object userId = claims.get("userId");
         List<String> auths = claims.get("authorities", List.class);
 
         if (auths == null) {
@@ -79,13 +83,22 @@ public class GlobalSecurityFilter implements GlobalFilter {
         ServerHttpRequest mutated = exchange.getRequest()
                 .mutate()
                 .headers(h -> {
+                    h.remove(X_USER_ID);
                     h.remove(X_USER_NAME);
                     h.remove(X_USER_AUTHORITIES);
+                    h.remove(X_TOKEN_TYPE);
                     h.remove(HttpHeaders.AUTHORIZATION);
                 })
                 .header(X_USER_NAME, username)
                 .header(X_USER_AUTHORITIES, String.join(",", auths))
+                .header(X_TOKEN_TYPE, tokenType)
                 .build();
+
+        if (userId != null) {
+            mutated = mutated.mutate()
+                    .header(X_USER_ID, String.valueOf(userId))
+                    .build();
+        }
 
         return chain.filter(exchange.mutate().request(mutated).build());
     }
