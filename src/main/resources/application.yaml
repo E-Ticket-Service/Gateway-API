@@ -1,42 +1,99 @@
 spring:
   main:
     banner-mode: off
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-          - id: auth-ms
-            uri: http://localhost:8081
-            predicates:
-              - Path=/api/auth/**
+      routes:
+        - id: auth-ms
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth-service/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
 
-          - id: ticket-ms
-            uri: http://localhost:8082
-            predicates:
-              - Path=/api/ticket/**
+        - id: ticket-ms
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/ticket-service/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
 
-          - id: payment-ms
-            uri: http://localhost:8083
-            predicates:
-              - Path=/api/payment/**
+        - id: payment-ms
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/payment-service/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
 
-          - id: notification-ms
-            uri: http://localhost:8084
-            predicates:
-              - Path=/api/notification/**
+        - id: notification-ms
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/notification-service/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
 
-          - id: file-ms
-            uri: http://localhost:8085
-            predicates:
-              - Path=/api/file/**
+        - id: file-ms
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/file-service/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth Service
+        url: /api/auth-service/v3/api-docs
+      - name: Ticket Service
+        url: /api/ticket-service/v3/api-docs
+      - name: Payment Service
+        url: /api/payment-service/v3/api-docs
+      - name: File Service
+        url: /api/file-service/v3/api-docs
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
 
 gateway:
   open-endpoints:
-    - /api/auth/register
-    - /api/auth/login
+    - /api/auth-service/register
+    - /api/auth-service/login
+    - /webjars/swagger-ui
+    - /v3/api-docs
+    - /api/auth-service/v3/api-docs
+    - /api/ticket-service/v3/api-docs
+    - /api/payment-service/v3/api-docs
+    - /api/notification-service/v3/api-docs
+    - /api/file-service/v3/api-docs
 
 jwt:
   secret: "CHANGE_TO_32+_CHAR_RANDOM_SECRET"
   access-exp: 900000    # 15 minutes
   refresh-exp: 604800000 # 7 days
+
+server:
+  port: 8090
