@@ -13,6 +13,7 @@ spring:
           predicates:
             - Path=/api/auth-service/**
           filters:
+            - PreserveHostHeader
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
@@ -24,6 +25,7 @@ spring:
           predicates:
             - Path=/api/ticket-service/**
           filters:
+            - PreserveHostHeader
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -35,6 +37,7 @@ spring:
           predicates:
             - Path=/api/payment-service/**
           filters:
+            - PreserveHostHeader
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
@@ -46,6 +49,7 @@ spring:
           predicates:
             - Path=/api/notification-service/**
           filters:
+            - PreserveHostHeader
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
@@ -57,6 +61,7 @@ spring:
           predicates:
             - Path=/api/file-service/**
           filters:
+            - PreserveHostHeader
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
@@ -65,6 +70,7 @@ spring:
 
 springdoc:
   swagger-ui:
+    enabled: true
     urls:
       - name: Auth Service
         url: /api/auth-service/v3/api-docs
@@ -77,6 +83,8 @@ springdoc:
   api-docs:
     enabled: true
     path: /v3/api-docs
+  webflux:
+    server-url: http://localhost:8090
 
 gateway:
   open-endpoints:
@@ -85,6 +93,9 @@ gateway:
     - /webjars/swagger-ui
     - /v3/api-docs
     - /api/auth-service/v3/api-docs
+    - /api/auth-service/auth/login
+    - /api/auth-service/auth/register
+    - /api/auth-service/auth/refresh
     - /api/ticket-service/v3/api-docs
     - /api/payment-service/v3/api-docs
     - /api/notification-service/v3/api-docs

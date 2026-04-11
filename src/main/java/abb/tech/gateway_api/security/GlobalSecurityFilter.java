@@ -87,7 +87,6 @@ public class GlobalSecurityFilter implements GlobalFilter {
                     h.remove(X_USER_NAME);
                     h.remove(X_USER_AUTHORITIES);
                     h.remove(X_TOKEN_TYPE);
-                    h.remove(HttpHeaders.AUTHORIZATION);
                 })
                 .header(X_USER_NAME, username)
                 .header(X_USER_AUTHORITIES, String.join(",", auths))
